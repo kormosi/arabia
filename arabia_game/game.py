@@ -1,7 +1,8 @@
 import pygame
 
-from utils import load_surface
 from models import Token
+from random import randint, random
+from utils import load_surface
 
 SCREEN_WIDTH = 1300
 SCREEN_HEIGHT = 900
@@ -16,7 +17,7 @@ class Arabia:
         self.controls_bg = load_surface("paper.png", False)
         # Sprites
         self.oil_tokens = [
-            Token(load_surface("oil_symbol_small.png")) for i in range(10)
+            Token("Oil", load_surface("oil_symbol_small.png")) for i in range(3)
         ]
 
     def main_loop(self):
@@ -36,17 +37,22 @@ class Arabia:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    quit()
             if event.type == pygame.MOUSEBUTTONUP:
                 pos = pygame.mouse.get_pos()
-                clicked_sprites = [
-                    s for s in self.oil_tokens
-                    if s.rect.collidepoint(pos)
-                ]
-                if clicked_sprites:
-                    print("clicked")
+
+                for s in self.oil_tokens:
+                    if s.rect.collidepoint(pos):
+                        print(f"Clicked on sprite {s.__repr__()}")
+                        self.oil_tokens.remove(s)
 
     def _process_game_logic(self):
-        ...
+        if randint(1, 10000) == 1:
+            self.oil_tokens.append(
+                Token("Oil", load_surface("oil_symbol_small.png"))
+            )
 
     def _draw(self):
         self.screen.blit(self.map, (MENU_WIDTH, 0))
