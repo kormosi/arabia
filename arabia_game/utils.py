@@ -1,11 +1,11 @@
 from pygame.image import load
 
 
-def load_sprite(name, with_alpha=True):
+def load_surface(name, with_alpha=True):
     path = f"assets/sprites/{name}"
-    loaded_sprite = load(path)
+    loaded_surface = load(path)
 
     if with_alpha:
-        return loaded_sprite.convert_alpha()
+        return loaded_surface.convert_alpha()
     else:
-        return loaded_sprite.convert()
+        return loaded_surface.convert()
