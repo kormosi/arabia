@@ -2,10 +2,13 @@ import pygame
 
 from utils import load_sprite
 
+SCREEN_WIDTH = 1300
+SCREEN_HEIGHT = 900
+
 class Arabia:
     def __init__(self):
         self._init_pygame()
-        self.screen = pygame.display.set_mode((1300, 900))
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.map = load_sprite("map_relief.png", False)
         self.controls_bg = load_sprite("paper.png", False)
 
