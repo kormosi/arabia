@@ -5,8 +5,9 @@ import game
 from random import randint
 
 class Player():
-    def __init__(self) -> None:
-        pass
+    def __init__(self, money: int, oil: int) -> None:
+        self.money = money
+        self.oil = oil
 
 class Token(Sprite):
     def __init__(self, type: str, surface: Surface) -> None:
