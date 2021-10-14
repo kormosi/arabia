@@ -13,14 +13,14 @@ class Arabia:
         self._init_pygame()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         # Player
-        self.player = Player(500, 0)
+        self.player = Player()
         # Surfaces
-        self.menu_bg = load_surface("paper.png", False)
+        self.menu_bg = load_surface("controls.png", False)
         self.map = load_surface("map_relief.png", False)
+        self.draw_borders()
         # Sprites
-        self.oil_tokens = [
-            # Token("Oil", load_surface("oil_symbol_small.png")) for i in range(3)
-        ]
+        self.tokens = []
+        #Fonts
         self.font = pygame.font.SysFont("monospace", 35)
 
     def main_loop(self):
@@ -56,23 +56,44 @@ class Arabia:
                 pos = pygame.mouse.get_pos()
                 print(pos)
 
-                for s in self.oil_tokens:
-                    if s.rect.collidepoint(pos):
+                for t in self.tokens:
+                    if t.rect.collidepoint(pos):
+                        print(t)
                         # Handle clicking on an oil token
-                        self.oil_tokens.remove(s)
+                        self.tokens.remove(t)
                         if self.sa.collidepoint(pos):
-                            print(f"Clicked on sprite {s.__repr__()} inside of Arabia")
-                            self.player.oil += 25
+                            print(f"Clicked on token {t.__repr__()} inside of Arabia")
+                            if t.type == "Oil":
+                                self.player.oil += 1
+                            elif t.type == "Uranium":
+                                self.player.uranium += 1
+                            elif t.type == "Stones":
+                                self.player.stones += 1
                         else:
-                            print(f"Clicked on sprite {s.__repr__()} outside of Arabia")
-                            self.player.oil += 25
-                            self.player.money -= 100
+                            print(f"Clicked on token {t.__repr__()} outside of Arabia")
+                            if t.type == "Oil":
+                                self.player.oil += 1
+                            elif t.type == "Uranium":
+                                self.player.uranium += 1
+                            elif t.type == "Stones":
+                                self.player.stones += 1
+                            self.player.money -= 5
 
 
     def _process_game_logic(self):
-        if randint(1, 500) == 1:
-            self.oil_tokens.append(
+        # TODO don't load_surface() on every instance. load it once, then reuse it
+        if randint(1, 2000) == 1:
+            self.tokens.append(
                 Token("Oil", load_surface("oil_symbol_small.png"))
+            )
+        if randint(1, 5000) == 1:
+            self.tokens.append(
+                Token("Uranium", load_surface("uranium_small.png"))
+            )
+
+        if randint(1, 5000) == 1:
+            self.tokens.append(
+                Token("Stones", load_surface("ruby.png"))
             )
 
     def _draw(self):
@@ -80,12 +101,19 @@ class Arabia:
         self.screen.blit(self.menu_bg, (0, 0))
         # Uncomment for border-debugging
         # self.screen.blit(self.transparent_surface, (0, 0))
-        for token in self.oil_tokens:
+
+        for token in self.tokens:
             self.screen.blit(
                 token.image, token.rect
             )
+
         money = self.font.render(f"Money:{str(self.player.money)}", True, (0,0,0))
         oil = self.font.render(f"Oil:{str(self.player.oil)}", True, (0,0,0))
+        uranium = self.font.render(f"Uranium:{str(self.player.uranium)}", True, (0,0,0))
+        stones = self.font.render(f"Stones:{str(self.player.stones)}", True, (0,0,0))
         self.screen.blit(money, (10, 10))
         self.screen.blit(oil, (10, 55))
+        self.screen.blit(uranium, (10, 100))
+        self.screen.blit(stones, (10, 145))
+
         pygame.display.flip()

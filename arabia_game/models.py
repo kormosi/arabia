@@ -5,9 +5,11 @@ import game
 from random import randint
 
 class Player():
-    def __init__(self, money: int, oil: int) -> None:
-        self.money = money
-        self.oil = oil
+    def __init__( self) -> None:
+        self.money = 50
+        self.oil = 0
+        self.uranium = 0
+        self.stones = 0
 
 class Token(Sprite):
     def __init__(self, type: str, surface: Surface) -> None:
