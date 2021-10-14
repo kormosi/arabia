@@ -33,6 +33,18 @@ class Arabia:
         pygame.init()
         pygame.display.set_caption("Dawn of Arabia")
 
+    def draw_borders(self):
+        # Draw Arabia borders onto an invisible surface
+        # TODO problem with wrong collision-detection can be solved
+        # by creating smaller borders around arabia.
+        self.transparent_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.transparent_surface.set_alpha(130)
+        self.sa = pygame.draw.polygon(
+            self.transparent_surface,
+            pygame.Color(125,0,0),
+            saudi_arabia
+        )
+
     def _handle_input(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -58,30 +70,16 @@ class Arabia:
 
 
     def _process_game_logic(self):
-        if randint(1, 1_000) == 1:
+        if randint(1, 500) == 1:
             self.oil_tokens.append(
                 Token("Oil", load_surface("oil_symbol_small.png"))
             )
-        ...
 
     def _draw(self):
         self.screen.blit(self.map, (MENU_WIDTH, 0))
         self.screen.blit(self.menu_bg, (0, 0))
-
-        self.sa = pygame.draw.aalines(
-            self.screen,
-            pygame.Color(125,0,0),
-            True,
-            saudi_arabia,
-        )
-
-        # self.sa = pygame.draw.polygon(
-        #     self.screen,
-        #     pygame.Color(125,0,0),
-        #     saudi_arabia,
-        #     2
-        # )
-
+        # Uncomment for border-debugging
+        # self.screen.blit(self.transparent_surface, (0, 0))
         for token in self.oil_tokens:
             self.screen.blit(
                 token.image, token.rect
