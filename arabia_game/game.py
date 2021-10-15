@@ -21,13 +21,19 @@ class Arabia:
         # Sprites
         self.tokens = []
         #Fonts
+        self.font_left_margin:int = 10
         self.font = pygame.font.SysFont("monospace", 35)
+        self.font_small = pygame.font.SysFont("monospace", 20)
+        # FPS control
+        self.clock = pygame.time.Clock()
 
     def main_loop(self):
         while True:
             self._handle_input()
             self._process_game_logic()
             self._draw()
+            # Limit the FPS
+            self.clock.tick(60)
 
     def _init_pygame(self):
         pygame.init()
@@ -82,19 +88,33 @@ class Arabia:
 
     def _process_game_logic(self):
         # TODO don't load_surface() on every instance. load it once, then reuse it
-        if randint(1, 2000) == 1:
+        if randint(1, 1000) == 1:
             self.tokens.append(
                 Token("Oil", load_surface("oil_symbol_small.png"))
             )
-        if randint(1, 5000) == 1:
+        if randint(1, 2000) == 1:
             self.tokens.append(
                 Token("Uranium", load_surface("uranium_small.png"))
             )
 
-        if randint(1, 5000) == 1:
+        if randint(1, 2000) == 1:
             self.tokens.append(
                 Token("Stones", load_surface("ruby.png"))
             )
+
+
+    def _render_text(self):
+        money = self.font.render(f"Money:{str(self.player.money)}", True, (0,0,0))
+        oil = self.font.render(f"Oil:{str(self.player.oil)}", True, (0,0,0))
+        uranium = self.font.render(f"Uranium:{str(self.player.uranium)}", True, (0,0,0))
+        stones = self.font.render(f"Stones:{str(self.player.stones)}", True, (0,0,0))
+        fps = self.font_small.render(f"FPS:{str(int(self.clock.get_fps()))}", True, (0,0,0))
+        self.screen.blit(money, (self.font_left_margin, 10))
+        self.screen.blit(oil, (self.font_left_margin, 55))
+        self.screen.blit(uranium, (self.font_left_margin, 100))
+        self.screen.blit(stones, (self.font_left_margin, 145))
+        self.screen.blit(fps, (self.font_left_margin, 870))
+
 
     def _draw(self):
         self.screen.blit(self.map, (MENU_WIDTH, 0))
@@ -107,13 +127,6 @@ class Arabia:
                 token.image, token.rect
             )
 
-        money = self.font.render(f"Money:{str(self.player.money)}", True, (0,0,0))
-        oil = self.font.render(f"Oil:{str(self.player.oil)}", True, (0,0,0))
-        uranium = self.font.render(f"Uranium:{str(self.player.uranium)}", True, (0,0,0))
-        stones = self.font.render(f"Stones:{str(self.player.stones)}", True, (0,0,0))
-        self.screen.blit(money, (10, 10))
-        self.screen.blit(oil, (10, 55))
-        self.screen.blit(uranium, (10, 100))
-        self.screen.blit(stones, (10, 145))
+        self._render_text()
 
         pygame.display.flip()
