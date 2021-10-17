@@ -17,7 +17,7 @@ class Arabia:
         self.player = Player()
         # Surfaces
         self.menu_bg = load_surface("controls.png", False)
-        self.map = load_surface("map_relief.png", False)
+        self.map = load_surface("map.png", False)
         self.transparent_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.transparent_surface.set_alpha(55)
         # Sprites
@@ -86,16 +86,16 @@ class Arabia:
         # TODO don't load_surface() on every instance. load it once, then reuse it
         if randint(1, 500) == 1:
             self.resources.add(
-                Token("Oil", load_surface("oil_symbol_small.png"))
+                Token("Oil", load_surface("oil_token.png"))
             )
         if randint(1, 1000) == 1:
             self.resources.add(
-                Token("Uranium", load_surface("uranium_small.png"))
+                Token("Uranium", load_surface("uranium_token.png"))
             )
 
         if randint(1, 1000) == 1:
             self.resources.add(
-                Token("Stones", load_surface("ruby.png"))
+                Token("Stones", load_surface("ruby_token.png"))
             )
 
         # Resources inside of Arabia
