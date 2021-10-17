@@ -1,7 +1,7 @@
 import pygame
 from pygame import draw
 
-from models import Token, Player, saudi_arabia
+from models import Token, Player
 from random import randint
 from utils import load_surface
 
@@ -21,12 +21,9 @@ class Arabia:
         self.transparent_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.transparent_surface.set_alpha(55)
         # Sprites
-        # self.border = self._draw_borders()
-        self.border = Token("Square", load_surface("square.png"), random=False)
-        # pygame.mask.from_surface(pygame.Surface((self.sa.w, self.sa.h)
-        # self.border_group = pygame.sprite.Group([])
-        # self.sprite_group = pygame.sprite.Group([])
-        self.sprite_group = []
+        self.border = Token("Square", load_surface("arabia_mask.png"), random=False)
+        # self.sprite_group = []
+        self.resources = pygame.sprite.Group()
 
         #Fonts
         self.font_left_margin:int = 10
@@ -47,45 +44,24 @@ class Arabia:
         pygame.init()
         pygame.display.set_caption("Dawn of Arabia")
 
-    def _draw_borders(self):
-        # Draw Arabia borders onto an invisible surface
-        # TODO problem with wrong collision-detection can be solved
-        # by creating smaller borders around arabia.
-        sa = pygame.draw.polygon(
-            self.screen,
-            pygame.Color(125,0,0),
-            saudi_arabia
-        )
-        sa_surface = pygame.Surface((sa.w, sa.h), pygame.SRCALPHA)
-        return Token(
-            "Map",
-            sa_surface,
-            random=False
-        )
-
     def _handle_input(self):
         for event in pygame.event.get():
+            # Quitting game
             if event.type == pygame.QUIT:
                 quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q:
                     quit()
+            # Sprite clicking
             if event.type == pygame.MOUSEBUTTONUP:
                 pos = pygame.mouse.get_pos()
                 print(pos)
 
-                for s in self.sprite_group:
+                # Check if a resource has been clicked, then remove it
+                for s in self.resources:
                     if s.rect.collidepoint(pos):
-                        print(s)
-                        self.sprite_group.remove(s)
 
-                        # arabia_col = pygame.sprite.spritecollide(
-                        #     self.border, self.sprite_group,
-                        #     False, pygame.sprite.collide_mask
-                        # )
-
-                        """
-                        if self.sa.collidepoint(pos):
+                        if s in self.arabia_col:
                             print(f"Clicked on token {s.__repr__()} inside of Arabia")
                             if s.type == "Oil":
                                 self.player.oil += 1
@@ -102,29 +78,31 @@ class Arabia:
                             elif s.type == "Stones":
                                 self.player.stones += 1
                             self.player.money -= 5
-                        """
+
+                        self.resources.remove(s)
+
 
     def _process_game_logic(self):
         # TODO don't load_surface() on every instance. load it once, then reuse it
-        if randint(1, 50) == 1:
-            # self.sprite_group.add(
-            self.sprite_group.append(
+        if randint(1, 500) == 1:
+            self.resources.add(
                 Token("Oil", load_surface("oil_symbol_small.png"))
             )
-        if randint(1, 50) == 1:
-            # self.sprite_group.add(
-            self.sprite_group.append(
+        if randint(1, 1000) == 1:
+            self.resources.add(
                 Token("Uranium", load_surface("uranium_small.png"))
             )
 
-        if randint(1, 50) == 1:
-            # self.sprite_group.add(
-            self.sprite_group.append(
+        if randint(1, 1000) == 1:
+            self.resources.add(
                 Token("Stones", load_surface("ruby.png"))
             )
-        if self.sprite_group:
-            arabia_col = pygame.sprite.collide_mask(self.border, self.sprite_group[-1])
-            print(arabia_col)
+
+        # Resources inside of Arabia
+        self.arabia_col = pygame.sprite.spritecollide(
+            self.border, self.resources,
+            False, pygame.sprite.collide_mask
+        )
 
 
     def _render_text(self):
@@ -144,10 +122,9 @@ class Arabia:
         self.screen.blit(self.map, (MENU_WIDTH, 0))
         self.screen.blit(self.menu_bg, (0, 0))
         # Uncomment for border-debugging
-        # self.screen.blit(self.transparent_surface, (0, 0))
-        self.screen.blit(self.border.image, self.border.rect)
+        # self.screen.blit(self.border.image, self.border.rect)
 
-        for sprite in self.sprite_group:
+        for sprite in self.resources:
             self.screen.blit(
                 sprite.image, sprite.rect
             )
