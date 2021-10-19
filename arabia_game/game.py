@@ -1,7 +1,7 @@
 import pygame
 from pygame import draw
 
-from models import Token, Player
+from models import Token, Player, Market
 from random import randint
 from utils import load_surface
 
@@ -15,6 +15,7 @@ class Arabia:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         # Player
         self.player = Player()
+        self.market = Market()
         # Surfaces
         self.menu_bg = load_surface("controls.png", False)
         self.map = load_surface("map.png", False)
@@ -22,9 +23,7 @@ class Arabia:
         self.transparent_surface.set_alpha(55)
         # Sprites
         self.border = Token("Square", load_surface("arabia_mask.png"), random=False)
-        # self.sprite_group = []
         self.resources = pygame.sprite.Group()
-
         #Fonts
         self.font_left_margin:int = 10
         self.font = pygame.font.SysFont("monospace", 35)
@@ -106,16 +105,22 @@ class Arabia:
 
 
     def _render_text(self):
+        # Resources
         money = self.font.render(f"Money:{str(self.player.money)}", True, (0,0,0))
         oil = self.font.render(f"Oil:{str(self.player.oil)}", True, (0,0,0))
         uranium = self.font.render(f"Uranium:{str(self.player.uranium)}", True, (0,0,0))
         stones = self.font.render(f"Stones:{str(self.player.stones)}", True, (0,0,0))
-        fps = self.font_small.render(f"FPS:{str(int(self.clock.get_fps()))}", True, (0,0,0))
         self.screen.blit(money, (self.font_left_margin, 10))
         self.screen.blit(oil, (self.font_left_margin, 55))
         self.screen.blit(uranium, (self.font_left_margin, 100))
         self.screen.blit(stones, (self.font_left_margin, 145))
+        # FPS
+        fps = self.font_small.render(f"FPS:{str(int(self.clock.get_fps()))}", True, (0,0,0))
         self.screen.blit(fps, (self.font_left_margin, 870))
+        # Resource price
+        prices = self.market.resource_price(self.resources)
+        print(prices)
+
 
 
     def _draw(self):
