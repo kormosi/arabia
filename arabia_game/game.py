@@ -1,16 +1,16 @@
 import pygame
-from pygame import draw
 
-from models import Token, Player
-from random import randint
+from models import Player, GameElement
 from utils import load_surface
+from random import randint
 
 SCREEN_WIDTH = 1300
 SCREEN_HEIGHT = 900
 MENU_WIDTH = 339
 
 class Arabia:
-    def __init__(self):
+    def __init__(self) -> None:
+        # Init stuff
         self._init_pygame()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         # Player
@@ -18,84 +18,66 @@ class Arabia:
         # Surfaces
         self.menu_bg = load_surface("controls.png", False)
         self.map = load_surface("map.png", False)
-        self.transparent_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        self.transparent_surface.set_alpha(55)
-        # Sprites
-        self.border = Token("Square", load_surface("arabia_mask.png"), random=False)
-        # self.sprite_group = []
+        self.border = GameElement(  # Technically a sprite, not a surface
+            "ArabiaMask", load_surface("arabia_mask.png"), random=False
+        )
         self.resources = pygame.sprite.Group()
-
         #Fonts
-        self.font_left_margin:int = 10
         self.font = pygame.font.SysFont("monospace", 35)
         self.font_small = pygame.font.SysFont("monospace", 20)
+        self.font_left_margin:int = 10
         # FPS control
         self.clock = pygame.time.Clock()
+
 
     def main_loop(self):
         while True:
             self._handle_input()
             self._process_game_logic()
             self._draw()
-            # Limit the FPS
             self.clock.tick(60)
+
 
     def _init_pygame(self):
         pygame.init()
-        pygame.display.set_caption("Dawn of Arabia")
+        pygame.display.set_caption("Twilight: Arabia")
+
 
     def _handle_input(self):
         for event in pygame.event.get():
             # Quitting game
-            if event.type == pygame.QUIT:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
                 quit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
-                    quit()
             # Sprite clicking
             if event.type == pygame.MOUSEBUTTONUP:
-                pos = pygame.mouse.get_pos()
-                print(pos)
-
-                # Check if a resource has been clicked, then remove it
-                for s in self.resources:
-                    if s.rect.collidepoint(pos):
-
-                        if s in self.arabia_col:
-                            print(f"Clicked on token {s.__repr__()} inside of Arabia")
-                            if s.type == "Oil":
-                                self.player.oil += 1
-                            elif s.type == "Uranium":
-                                self.player.uranium += 1
-                            elif s.type == "Stones":
-                                self.player.stones += 1
+                mouse_position:tuple[int, int] = pygame.mouse.get_pos()
+                # Check if a resource has been clicked
+                for resource in self.resources:
+                    if resource.rect.collidepoint(mouse_position):
+                        # Add resource to Player's resources
+                        self.player.add_resource(resource.type)
+                        if resource in self.arabia_col:
+                            print(f"Clicked on token {resource.__repr__()} inside of Arabia")
                         else:
-                            print(f"Clicked on token {s.__repr__()} outside of Arabia")
-                            if s.type == "Oil":
-                                self.player.oil += 1
-                            elif s.type == "Uranium":
-                                self.player.uranium += 1
-                            elif s.type == "Stones":
-                                self.player.stones += 1
+                            print(f"Clicked on token {resource.__repr__()} outside of Arabia")
                             self.player.money -= 5
-
-                        self.resources.remove(s)
+                        self.resources.remove(resource)
 
 
     def _process_game_logic(self):
         # TODO don't load_surface() on every instance. load it once, then reuse it
         if randint(1, 500) == 1:
             self.resources.add(
-                Token("Oil", load_surface("oil_token.png"))
+                GameElement("Oil", load_surface("oil_token.png"))
             )
         if randint(1, 1000) == 1:
             self.resources.add(
-                Token("Uranium", load_surface("uranium_token.png"))
+                GameElement("Uranium", load_surface("uranium_token.png"))
             )
 
         if randint(1, 1000) == 1:
             self.resources.add(
-                Token("Stones", load_surface("ruby_token.png"))
+                GameElement("Stones", load_surface("ruby_token.png"))
             )
 
         # Resources inside of Arabia

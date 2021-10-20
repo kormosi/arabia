@@ -1,17 +1,27 @@
-from pygame.sprite import Sprite
-from pygame import Surface, Rect, mask
-
 import game
+
+from pygame import Rect, Surface, mask
+from pygame.sprite import Sprite
 from random import randint
 
+
 class Player():
-    def __init__( self) -> None:
+    def __init__(self) -> None:
         self.money = 50
         self.oil = 0
         self.uranium = 0
         self.stones = 0
 
-class Token(Sprite):
+        self.resources:dict[str, int] = {}
+
+    def add_resource(self, resource_type: str) -> None:
+        if resource_type in self.resources:
+            self.resources[resource_type] += 1
+        else:
+            self.resources[resource_type] = 1
+
+
+class GameElement(Sprite):
     def __init__(self, type: str, surface: Surface, random:bool=True) -> None:
         super().__init__()
         self.image = surface 
