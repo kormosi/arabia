@@ -9,6 +9,7 @@ pygame = "*"
 [dev-packages]
 pynvim = "*"
 jedi = "*"
+mypy = "*"
 
 [requires]
 python_version = "3.9"
