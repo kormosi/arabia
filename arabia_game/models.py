@@ -8,10 +8,6 @@ from random import randint
 class Player():
     def __init__( self) -> None:
         self.money:int = 50
-        self.oil:int = 0
-        self.uranium:int = 0
-        self.stones:int = 0
-
         self.resources:dict[str, int] = {}
 
     def add_resource(self, resource_type: str) -> None:
@@ -30,6 +26,8 @@ class GameElement(Sprite):
         if random:
             self.rect: Rect = self.image.get_rect(
                 topleft=(
+                    # Subtracted values are hard-coded for now;
+                    # they fit the current token size.
                     randint(game.MENU_WIDTH, game.SCREEN_WIDTH-30),
                     randint(0, game.SCREEN_HEIGHT-45)
                 )
@@ -61,7 +59,7 @@ class Market():
         self.uranium_modifier = 0.5
 
 
-    def resource_price(self, resources: list[Token]) -> dict:
+    def resource_price(self, resources: list[GameElement]) -> dict:
         oil = len([r for r in resources if r.type == "Oil"])
         stones = len([r for r in resources if r.type == "Stones"])
         uranium = len([r for r in resources if r.type == "Uranium"])

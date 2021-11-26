@@ -1,11 +1,6 @@
 import pygame
 
-<<<<<<< HEAD
-from models import Player, GameElement
-=======
-from models import Token, Player, Market
-from random import randint
->>>>>>> b7bd4d1 (Create first draff of resource pricing)
+from models import Player, GameElement, Market
 from utils import load_surface
 from random import randint
 
@@ -24,16 +19,9 @@ class Arabia:
         # Surfaces
         self.menu_bg = load_surface("controls.png", False)
         self.map = load_surface("map.png", False)
-<<<<<<< HEAD
         self.border = GameElement(  # Technically a sprite, not a surface
             "ArabiaMask", load_surface("arabia_mask.png"), random=False
         )
-=======
-        self.transparent_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        self.transparent_surface.set_alpha(55)
-        # Sprites
-        self.border = Token("Square", load_surface("arabia_mask.png"), random=False)
->>>>>>> b7bd4d1 (Create first draff of resource pricing)
         self.resources = pygame.sprite.Group()
         #Fonts
         self.font = pygame.font.SysFont("monospace", 35)
@@ -94,7 +82,7 @@ class Arabia:
             )
 
         # Resources inside of Arabia
-        self.arabia_col = pygame.sprite.spritecollide(
+        self.arabia_col: list = pygame.sprite.spritecollide(
             self.border, self.resources,
             False, pygame.sprite.collide_mask
         )
@@ -103,9 +91,15 @@ class Arabia:
     def _render_text(self):
         # Resources
         money = self.font.render(f"Money:{str(self.player.money)}", True, (0,0,0))
-        oil = self.font.render(f"Oil:{str(self.player.oil)}", True, (0,0,0))
-        uranium = self.font.render(f"Uranium:{str(self.player.uranium)}", True, (0,0,0))
-        stones = self.font.render(f"Stones:{str(self.player.stones)}", True, (0,0,0))
+        oil = self.font.render(
+            f"Oil:{str(self.player.resources.get('Oil', 0))}", True, (0,0,0)
+        )
+        uranium = self.font.render(
+            f"Uranium:{str(self.player.resources.get('Uranium', 0))}", True, (0,0,0)
+        )
+        stones = self.font.render(
+            f"Stones:{str(self.player.resources.get('Stones', 0))}", True, (0,0,0)
+        )
         self.screen.blit(money, (self.font_left_margin, 10))
         self.screen.blit(oil, (self.font_left_margin, 55))
         self.screen.blit(uranium, (self.font_left_margin, 100))

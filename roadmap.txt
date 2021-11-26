@@ -1,3 +1,1 @@
-- make collisions pixel-perfect
-    - will probably need a map png picture -> maybe it can be achieved with Rect too?
 - prevent spawning of elements at the same position 
