@@ -24,6 +24,7 @@ class GameElement(Sprite):
         self.type = type
         self.mask = mask.from_surface(surface)
         if random:
+            # Place the element randomly on the map
             self.rect: Rect = self.image.get_rect(
                 topleft=(
                     # Subtracted values are hard-coded for now;
@@ -34,10 +35,7 @@ class GameElement(Sprite):
             )
         else:
             self.rect = self.image.get_rect(
-                topleft=(
-                    game.MENU_WIDTH,
-                    0
-                    )
+                topleft=(0, 0)
             )
     
     def __repr__(self) -> str:

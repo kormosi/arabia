@@ -22,9 +22,13 @@ class Arabia:
         self.border = GameElement(  # Technically a sprite, not a surface
             "ArabiaMask", load_surface("arabia_mask.png"), random=False
         )
+        self.oil_token = load_surface("oil_token.png")
+        self.uranium_token = load_surface("uranium_token.png")
+        self.stones_token = load_surface("stone_token.png")
         self.resources = pygame.sprite.Group()
         #Fonts
         self.font = pygame.font.SysFont("monospace", 35)
+        self.font_medium = pygame.font.SysFont("monospace", 27)
         self.font_small = pygame.font.SysFont("monospace", 20)
         self.font_left_margin:int = 10
         # FPS control
@@ -66,28 +70,56 @@ class Arabia:
 
 
     def _process_game_logic(self):
-        # TODO don't load_surface() on every instance. load it once, then reuse it
         if randint(1, 500) == 1:
             self.resources.add(
-                GameElement("Oil", load_surface("oil_token.png"))
+                GameElement("Oil", self.oil_token)
             )
         if randint(1, 1000) == 1:
             self.resources.add(
-                GameElement("Uranium", load_surface("uranium_token.png"))
+                GameElement("Uranium", self.uranium_token)
             )
 
         if randint(1, 1000) == 1:
             self.resources.add(
-                GameElement("Stones", load_surface("ruby_token.png"))
+                GameElement("Stones", self.stones_token)
             )
 
-        # Resources inside of Arabia
+        # Calculate resources touching the Arabia
+        # TODO This should rather be "inside of Arabia"
+        # That could be achieved by using a smaller mask
         self.arabia_col: list = pygame.sprite.spritecollide(
             self.border, self.resources,
             False, pygame.sprite.collide_mask
         )
 
+    def _render_market(self):
+        # Place and render
+        buy = self.font_medium.render("Buy:", True, (0,0,0))
+        sell = self.font_medium.render("Sell:", True, (0,0,0))
 
+        sell_oil = GameElement("Oil", self.oil_token, random=False)
+        sell_uranium = GameElement("Uranium", self.uranium_token, random=False)
+        sell_stones = GameElement("Stones", self.stones_token, random=False)
+
+        buy_oil = GameElement("Oil", self.oil_token, random=False)
+        buy_uranium = GameElement("Uranium", self.uranium_token, random=False)
+        buy_stones = GameElement("Stones", self.stones_token, random=False)
+
+        # Blit
+        self.screen.blit(sell_oil.image, (self.font_left_margin + 80, 690))
+        self.screen.blit(sell_uranium.image, (self.font_left_margin + 130, 696))
+        self.screen.blit(sell_stones.image, (self.font_left_margin + 190, 699))
+
+        self.screen.blit(buy_oil.image, (self.font_left_margin + 80, 760))
+        self.screen.blit(buy_uranium.image, (self.font_left_margin + 130, 766))
+        self.screen.blit(buy_stones.image, (self.font_left_margin + 190, 769))
+
+        self.screen.blit(buy, (self.font_left_margin, 700))
+        self.screen.blit(sell, (self.font_left_margin, 770))
+
+    # TODO I think I'm going to split the render_text method into two methods,
+    # one for rendering all info about resources (including texts and sell icons),
+    # and another strictly for textual info, like FPS.
     def _render_text(self):
         # Resources
         money = self.font.render(f"Money:{str(self.player.money)}", True, (0,0,0))
@@ -112,7 +144,6 @@ class Arabia:
         print(prices)
 
 
-
     def _draw(self):
         self.screen.blit(self.map, (MENU_WIDTH, 0))
         self.screen.blit(self.menu_bg, (0, 0))
@@ -125,5 +156,6 @@ class Arabia:
             )
 
         self._render_text()
+        self._render_market()
 
         pygame.display.flip()
