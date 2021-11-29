@@ -18,7 +18,9 @@ class Player():
 
 
 class GameElement(Sprite):
-    def __init__(self, type: str, surface: Surface, random:bool=True) -> None:
+    def __init__(
+        self, type: str, surface: Surface, random:bool=True, **kwargs
+    ) -> None:
         super().__init__()
         self.image = surface 
         self.type = type
@@ -35,7 +37,7 @@ class GameElement(Sprite):
             )
         else:
             self.rect = self.image.get_rect(
-                topleft=(0, 0)
+                topleft=(kwargs["x"], kwargs["y"])
             )
     
     def __repr__(self) -> str:
@@ -50,11 +52,11 @@ class Market():
 
         self.stone_base_price: int = 7
         self.stone_min_price: int = 3
-        self.stone_modifier = 0.5
+        self.stone_modifier: float = 0.5
 
         self.uranium_base_price: int = 10
         self.uranium_min_price: int = 4
-        self.uranium_modifier = 0.5
+        self.uranium_modifier: float = 0.5
 
 
     def resource_price(self, resources: list[GameElement]) -> dict:
@@ -62,12 +64,12 @@ class Market():
         stones = len([r for r in resources if r.type == "Stones"])
         uranium = len([r for r in resources if r.type == "Uranium"])
 
-        oil_price = self.oil_base_price - self.oil_modifier * oil
-        stone_price = self.stone_base_price - self.stone_modifier * stones
-        uranium_price = self.uranium_base_price - self.uranium_modifier * uranium
+        self.oil_price = self.oil_base_price - self.oil_modifier * oil
+        self.stone_price = self.stone_base_price - self.stone_modifier * stones
+        self.uranium_price = self.uranium_base_price - self.uranium_modifier * uranium
 
         return {
-            "oil": self.oil_min_price if oil_price < self.oil_min_price else oil_price,
-            "uranium": self.uranium_min_price if uranium_price < self.uranium_min_price else uranium_price,
-            "stones": self.stone_min_price if stone_price < self.stone_min_price else stone_price
+            "oil": self.oil_min_price if self.oil_price < self.oil_min_price else self.oil_price,
+            "uranium": self.uranium_min_price if self.uranium_price < self.uranium_min_price else self.uranium_price,
+            "stones": self.stone_min_price if self.stone_price < self.stone_min_price else self.stone_price
         }
