@@ -1,6 +1,6 @@
 import pygame
 
-from models import Player, GameElement, Market
+from models import Player, GameElement, Market, Resource
 from utils import load_surface
 from random import randint
 
@@ -17,10 +17,10 @@ class Arabia:
         self.player = Player()
         self.market = Market()
         # Surfaces
-        self.menu_bg = load_surface("controls.png", False)
         self.map = load_surface("map.png", False)
+        self.menu_bg = load_surface("controls.png", False)
         self.border = GameElement(  # Technically a sprite, not a surface
-            "ArabiaMask", load_surface("arabia_mask.png"), random=False, x=MENU_WIDTH, y=0
+            "ArabiaMask", load_surface("arabia_mask.png"), x=MENU_WIDTH, y=0
         )
         self.oil_token = load_surface("oil_token.png")
         self.uranium_token = load_surface("uranium_token.png")
@@ -65,13 +65,13 @@ class Arabia:
                         self.player.add_resource(resource.type)
                         if resource in self.arabia_col:
                             print(f"Clicked on token {resource.__repr__()} inside of Arabia")
+                            self.player.money -= resource.inside_cost
                         else:
                             print(f"Clicked on token {resource.__repr__()} outside of Arabia")
-                            self.player.money -= 5
+                            self.player.money -= resource.outside_cost
                         self.resources.remove(resource)
                 for market_item in self.market_items:
                     if market_item.rect.collidepoint(mouse_position):
-                        print("collision")
                         if market_item == self.sell_oil:
                             self.player.money += self.market.oil_price
                             self.player.resources["Oil"] -= 1
@@ -80,16 +80,16 @@ class Arabia:
     def _process_game_logic(self):
         if randint(1, 300) == 1:
             self.resources.add(
-                GameElement("Oil", self.oil_token)
+                Resource("Oil", self.oil_token, 3, 5, random=True)
             )
         if randint(1, 500) == 1:
             self.resources.add(
-                GameElement("Uranium", self.uranium_token)
+                Resource("Uranium", self.uranium_token, 8, 10, random=True)
             )
 
         if randint(1, 500) == 1:
             self.resources.add(
-                GameElement("Stones", self.stones_token)
+                Resource("Stones", self.stones_token, 5, 8, random=True)
             )
 
         # Calculate resources touching the Arabia
@@ -105,13 +105,13 @@ class Arabia:
         self.buy = self.font_medium.render("Buy:", True, (0,0,0))
         self.sell = self.font_medium.render("Sell:", True, (0,0,0))
 
-        self.sell_oil = GameElement("Oil", self.oil_token, random=False, x=self.font_left_margin + 80, y=760)
-        # self.sell_uranium = GameElement("Uranium", self.uranium_token, random=False)
-        # self.sell_stones = GameElement("Stones", self.stones_token, random=False)
+        self.sell_oil = GameElement("Oil", self.oil_token, x=self.font_left_margin + 80, y=760)
+        # self.sell_uranium = GameElement("Uranium", self.uranium_token)
+        # self.sell_stones = GameElement("Stones", self.stones_token)
 
-        # self.buy_oil = GameElement("Oil", self.oil_token, random=False)
-        # self.buy_uranium = GameElement("Uranium", self.uranium_token, random=False)
-        # self.buy_stones = GameElement("Stones", self.stones_token, random=False)
+        # self.buy_oil = GameElement("Oil", self.oil_token)
+        # self.buy_uranium = GameElement("Uranium", self.uranium_token)
+        # self.buy_stones = GameElement("Stones", self.stones_token)
 
         self.market_items.add(self.sell_oil)
         # self.market_items.add(self.sell_uranium)

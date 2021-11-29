@@ -19,7 +19,11 @@ class Player():
 
 class GameElement(Sprite):
     def __init__(
-        self, type: str, surface: Surface, random:bool=True, **kwargs
+        self,
+        type: str,
+        surface: Surface,
+        random:bool=False,
+        **kwargs
     ) -> None:
         super().__init__()
         self.image = surface 
@@ -42,6 +46,21 @@ class GameElement(Sprite):
     
     def __repr__(self) -> str:
         return f"{self.type} at {self.rect[0:2]}"
+
+
+class Resource(GameElement):
+    def __init__(
+        self,
+        type: str,
+        surface: Surface,
+        inside_cost: int,
+        outside_cost: int,
+        random:bool=True,
+        **kwargs
+        ) -> None:
+            super().__init__(type, surface, random, **kwargs)
+            self.inside_cost = inside_cost
+            self.outside_cost = outside_cost
 
 
 class Market():
