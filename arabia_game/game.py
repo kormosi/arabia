@@ -72,24 +72,25 @@ class Arabia:
                         self.resources.remove(resource)
                 for market_item in self.market_items:
                     if market_item.rect.collidepoint(mouse_position):
-                        if market_item == self.sell_oil:
-                            self.player.money += self.market.oil_price
-                            self.player.resources["Oil"] -= 1
+                        self.player.money += self.market.prices[market_item.type]
+                        self.player.resources[market_item.type] -= 1
+                        print(f"Sold {market_item.type} for {self.market.prices[market_item.type]}")
+                        self.market.modify_price(market_item.type)
 
 
     def _process_game_logic(self):
-        if randint(1, 300) == 1:
+        if randint(1, 100) == 1:
             self.resources.add(
-                Resource("Oil", self.oil_token, 3, 5, random=True)
+                Resource("oil", self.oil_token, 3, 5, random=True)
             )
-        if randint(1, 500) == 1:
+        if randint(1, 100) == 1:
             self.resources.add(
-                Resource("Uranium", self.uranium_token, 8, 10, random=True)
+                Resource("uranium", self.uranium_token, 8, 10, random=True)
             )
 
-        if randint(1, 500) == 1:
+        if randint(1, 100) == 1:
             self.resources.add(
-                Resource("Stones", self.stones_token, 5, 8, random=True)
+                Resource("stones", self.stones_token, 5, 8, random=True)
             )
 
         # Calculate resources touching the Arabia
@@ -101,41 +102,26 @@ class Arabia:
         )
 
     def _init_market(self):
-        # Place and render
-        self.buy = self.font_medium.render("Buy:", True, (0,0,0))
+        # Font
         self.sell = self.font_medium.render("Sell:", True, (0,0,0))
-
-        self.sell_oil = GameElement("Oil", self.oil_token, x=self.font_left_margin + 80, y=760)
-        # self.sell_uranium = GameElement("Uranium", self.uranium_token)
-        # self.sell_stones = GameElement("Stones", self.stones_token)
-
-        # self.buy_oil = GameElement("Oil", self.oil_token)
-        # self.buy_uranium = GameElement("Uranium", self.uranium_token)
-        # self.buy_stones = GameElement("Stones", self.stones_token)
+        # Icons
+        self.sell_oil = GameElement("oil", self.oil_token, x=self.font_left_margin + 80, y=760)
+        self.sell_uranium = GameElement("uranium", self.uranium_token, x=self.font_left_margin + 130, y=766)
+        self.sell_stones = GameElement("stones", self.stones_token, x=self.font_left_margin + 190, y=769)
 
         self.market_items.add(self.sell_oil)
-        # self.market_items.add(self.sell_uranium)
-        # self.market_items.add(self.sell_stones)
-
-        # self.market_items.add(self.buy_oil)
-        # self.market_items.add(self.buy_uranium)
-        # self.market_items.add(self.buy_stones)
+        self.market_items.add(self.sell_uranium)
+        self.market_items.add(self.sell_stones)
 
 
     def _render_market(self):
-        # Blit
-        # self.screen.blit(self.sell_oil.image, (self.font_left_margin + 80, 690))
-        # self.screen.blit(self.sell_uranium.image, (self.font_left_margin + 130, 696))
-        # self.screen.blit(self.sell_stones.image, (self.font_left_margin + 190, 699))
-
-        # TODO WARNING: buy and sell are vice versa
-        self.screen.blit(self.sell_oil.image, (self.font_left_margin + 80, 760))
-
-        # self.screen.blit(self.buy_uranium.image, (self.font_left_margin + 130, 766))
-        # self.screen.blit(self.buy_stones.image, (self.font_left_margin + 190, 769))
-
-        # self.screen.blit(self.buy, (self.font_left_margin, 700))
+        # Font
         self.screen.blit(self.sell, (self.font_left_margin, 770))
+        # Icons
+        self.screen.blit(self.sell_oil.image, (self.font_left_margin + 90, 760))
+        self.screen.blit(self.sell_uranium.image, (self.font_left_margin + 140, 766))
+        self.screen.blit(self.sell_stones.image, (self.font_left_margin + 200, 769))
+
 
     # TODO I think I'm going to split the render_text method into two methods,
     # one for rendering all info about resources (including texts and sell icons),
@@ -144,13 +130,13 @@ class Arabia:
         # Resources
         money = self.font.render(f"Money:{str(self.player.money)}", True, (0,0,0))
         oil = self.font.render(
-            f"Oil:{str(self.player.resources.get('Oil', 0))}", True, (0,0,0)
+            f"Oil:{str(self.player.resources.get('oil', 0))}", True, (0,0,0)
         )
         uranium = self.font.render(
-            f"Uranium:{str(self.player.resources.get('Uranium', 0))}", True, (0,0,0)
+            f"Uranium:{str(self.player.resources.get('uranium', 0))}", True, (0,0,0)
         )
         stones = self.font.render(
-            f"Stones:{str(self.player.resources.get('Stones', 0))}", True, (0,0,0)
+            f"Stones:{str(self.player.resources.get('stones', 0))}", True, (0,0,0)
         )
         self.screen.blit(money, (self.font_left_margin, 10))
         self.screen.blit(oil, (self.font_left_margin, 55))
@@ -159,9 +145,6 @@ class Arabia:
         # FPS
         fps = self.font_small.render(f"FPS:{str(int(self.clock.get_fps()))}", True, (0,0,0))
         self.screen.blit(fps, (self.font_left_margin, 870))
-        # Resource price
-        prices = self.market.resource_price(self.resources)
-        print(prices)
 
 
     def _draw(self):

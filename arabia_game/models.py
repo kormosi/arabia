@@ -64,31 +64,19 @@ class Resource(GameElement):
 
 
 class Market():
-    def __init__( self) -> None:
-        self.oil_base_price: int = 5
-        self.oil_min_price: int = 2
-        self.oil_modifier = 0.5
-
-        self.stone_base_price: int = 7
-        self.stone_min_price: int = 3
-        self.stone_modifier: float = 0.5
-
-        self.uranium_base_price: int = 10
-        self.uranium_min_price: int = 4
-        self.uranium_modifier: float = 0.5
-
-
-    def resource_price(self, resources: list[GameElement]) -> dict:
-        oil = len([r for r in resources if r.type == "Oil"])
-        stones = len([r for r in resources if r.type == "Stones"])
-        uranium = len([r for r in resources if r.type == "Uranium"])
-
-        self.oil_price = self.oil_base_price - self.oil_modifier * oil
-        self.stone_price = self.stone_base_price - self.stone_modifier * stones
-        self.uranium_price = self.uranium_base_price - self.uranium_modifier * uranium
-
-        return {
-            "oil": self.oil_min_price if self.oil_price < self.oil_min_price else self.oil_price,
-            "uranium": self.uranium_min_price if self.uranium_price < self.uranium_min_price else self.uranium_price,
-            "stones": self.stone_min_price if self.stone_price < self.stone_min_price else self.stone_price
+    def __init__(self) -> None:
+        self.prices: dict = {
+            "oil": 5,
+            "uranium": 10,
+            "stones": 7
         }
+
+        self.modifiers: dict = {
+            "oil": 0.7,
+            "stones": 0.8,  
+            "uranium": 1.0,
+        }
+
+    def modify_price(self, resource_type: str) -> None:
+        self.prices[resource_type] -= self.modifiers[resource_type]
+        print(f"Modified {resource_type} price by -{self.modifiers[resource_type]}")
