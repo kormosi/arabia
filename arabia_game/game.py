@@ -61,21 +61,35 @@ class Arabia:
                 # Check if a resource has been clicked
                 for resource in self.resources:
                     if resource.rect.collidepoint(mouse_position):
-                        # Add resource to Player's resources
-                        self.player.add_resource(resource.type)
-                        if resource in self.arabia_col:
-                            print(f"Clicked on token {resource.__repr__()} inside of Arabia")
-                            self.player.money -= resource.inside_cost
-                        else:
-                            print(f"Clicked on token {resource.__repr__()} outside of Arabia")
-                            self.player.money -= resource.outside_cost
-                        self.resources.remove(resource)
+                        self._handle_mining(resource)
                 for market_item in self.market_items:
                     if market_item.rect.collidepoint(mouse_position):
                         self.player.money += self.market.prices[market_item.type]
                         self.player.resources[market_item.type] -= 1
                         print(f"Sold {market_item.type} for {self.market.prices[market_item.type]}")
                         self.market.modify_price(market_item.type)
+
+
+    def _handle_mining(self, resource) -> None:
+        # Add resource to Player's resources
+        if resource in self.arabia_col:
+            print(f"Clicked on token {resource.__repr__()} inside of Arabia")
+            if self.player.has_enough_money(resource.inside_cost):
+                self.player.money -= resource.inside_cost
+                self.resources.remove(resource)
+                self.player.add_resource(resource.type)
+                print(f"Mined {resource.type} for {resource.inside_cost}")
+            else:
+                print("Not enough money")
+        else:
+            print(f"Clicked on token {resource.__repr__()} outside of Arabia")
+            if self.player.has_enough_money(resource.outside_cost):
+                self.player.money -= resource.outside_cost
+                self.resources.remove(resource)
+                self.player.add_resource(resource.type)
+                print(f"Mined {resource.type} for {resource.outside_cost}")
+            else:
+                print("Not enough money")
 
 
     def _process_game_logic(self):
