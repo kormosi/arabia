@@ -25,7 +25,7 @@ class Arabia:
         self.oil_token = load_surface("oil_token.png")
         self.uranium_token = load_surface("uranium_token.png")
         self.stones_token = load_surface("stone_token.png")
-        self.resources = pygame.sprite.Group()
+        self.resources_on_map = pygame.sprite.Group()
         #Fonts
         self.font = pygame.font.SysFont("monospace", 35)
         self.font_medium = pygame.font.SysFont("monospace", 27)
@@ -59,9 +59,9 @@ class Arabia:
             if event.type == pygame.MOUSEBUTTONUP:
                 mouse_position:tuple[int, int] = pygame.mouse.get_pos()
                 # Check if a resource has been clicked
-                for resource in self.resources:
+                for resource in self.resources_on_map:
                     if resource.rect.collidepoint(mouse_position):
-                        self._handle_mining(resource)
+                        self._handle_resource_clicking(resource)
                 for market_item in self.market_items:
                     if market_item.rect.collidepoint(mouse_position):
                         self.player.money += self.market.prices[market_item.type]
@@ -70,40 +70,41 @@ class Arabia:
                         self.market.modify_price(market_item.type)
 
 
-    def _handle_mining(self, resource) -> None:
+    def _handle_resource_clicking(self, resource) -> None:
         # Add resource to Player's resources
         if resource in self.arabia_col:
             print(f"Clicked on token {resource.__repr__()} inside of Arabia")
-            if self.player.has_enough_money(resource.inside_cost):
-                self.player.money -= resource.inside_cost
-                self.resources.remove(resource)
-                self.player.add_resource(resource.type)
-                print(f"Mined {resource.type} for {resource.inside_cost}")
-            else:
-                print("Not enough money")
+            self._handle_mining(resource, inside_arabia=True)
         else:
             print(f"Clicked on token {resource.__repr__()} outside of Arabia")
-            if self.player.has_enough_money(resource.outside_cost):
-                self.player.money -= resource.outside_cost
-                self.resources.remove(resource)
-                self.player.add_resource(resource.type)
-                print(f"Mined {resource.type} for {resource.outside_cost}")
-            else:
-                print("Not enough money")
+            self._handle_mining(resource, inside_arabia=False)
+
+
+    def _handle_mining(self, resource, inside_arabia=True) -> None:
+        resource_cost = (
+            resource.inside_cost if inside_arabia else resource.outside_cost
+        )
+        if self.player.has_enough_money(resource_cost):
+            self.player.money -= resource_cost
+            self.resources_on_map.remove(resource)
+            self.player.add_resource(resource.type)
+            print(f"Mined {resource.type} for {resource_cost}")
+        else:
+            print("Not enough money to mine")
 
 
     def _process_game_logic(self):
         if randint(1, 100) == 1:
-            self.resources.add(
+            self.resources_on_map.add(
                 Resource("oil", self.oil_token, 3, 5, random=True)
             )
         if randint(1, 100) == 1:
-            self.resources.add(
+            self.resources_on_map.add(
                 Resource("uranium", self.uranium_token, 8, 10, random=True)
             )
 
         if randint(1, 100) == 1:
-            self.resources.add(
+            self.resources_on_map.add(
                 Resource("stones", self.stones_token, 5, 8, random=True)
             )
 
@@ -111,7 +112,7 @@ class Arabia:
         # TODO This should rather be "inside of Arabia"
         # That could be achieved by using a smaller mask
         self.arabia_col: list = pygame.sprite.spritecollide(
-            self.border, self.resources,
+            self.border, self.resources_on_map,
             False, pygame.sprite.collide_mask
         )
 
@@ -167,7 +168,7 @@ class Arabia:
         # Uncomment for border-debugging
         # self.screen.blit(self.border.image, self.border.rect)
 
-        for sprite in self.resources:
+        for sprite in self.resources_on_map:
             self.screen.blit(
                 sprite.image, sprite.rect
             )
