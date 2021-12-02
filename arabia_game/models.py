@@ -19,6 +19,12 @@ class Player():
     def has_enough_money(self, cost: int) -> bool:
         return cost <= self.money
 
+    def has_resource(self, resource_type: str) -> bool:
+        return (
+            resource_type in self.resources
+            and self.resources[resource_type] > 0
+        )
+
 
 class GameElement(Sprite):
     def __init__(

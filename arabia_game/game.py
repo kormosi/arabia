@@ -62,12 +62,10 @@ class Arabia:
                 for resource in self.resources_on_map:
                     if resource.rect.collidepoint(mouse_position):
                         self._handle_resource_clicking(resource)
-                for market_item in self.market_items:
-                    if market_item.rect.collidepoint(mouse_position):
-                        self.player.money += self.market.prices[market_item.type]
-                        self.player.resources[market_item.type] -= 1
-                        print(f"Sold {market_item.type} for {self.market.prices[market_item.type]}")
-                        self.market.modify_price(market_item.type)
+                for resource in self.market_items:
+                    if resource.rect.collidepoint(mouse_position):
+                        self._handle_selling(resource)
+
 
 
     def _handle_resource_clicking(self, resource) -> None:
@@ -91,6 +89,16 @@ class Arabia:
             print(f"Mined {resource.type} for {resource_cost}")
         else:
             print("Not enough money to mine")
+
+
+    def _handle_selling(self, resource):
+        if self.player.has_resource(resource.type):
+            self.player.resources[resource.type] -= 1
+            self.player.money += self.market.prices[resource.type]
+            print(f"Sold {resource.type} for {self.market.prices[resource.type]}")
+            self.market.modify_price(resource.type)
+        else:
+            print("You don't own that resource")
 
 
     def _process_game_logic(self):
