@@ -128,22 +128,14 @@ class Arabia:
         # Font
         self.sell = self.font_medium.render("Sell:", True, (0,0,0))
         # Icons
-        self.sell_oil = GameElement("oil", self.oil_token, x=self.font_left_margin + 80, y=760)
-        self.sell_uranium = GameElement("uranium", self.uranium_token, x=self.font_left_margin + 130, y=766)
-        self.sell_stones = GameElement("stones", self.stones_token, x=self.font_left_margin + 190, y=769)
+        # TODO work on alignment of icons and/or text
+        self.sell_oil = GameElement("oil", self.oil_token, x=self.font_left_margin, y=50)
+        self.sell_uranium = GameElement("uranium", self.uranium_token, x=self.font_left_margin, y=103)
+        self.sell_stones = GameElement("stones", self.stones_token, x=self.font_left_margin, y=145)
 
         self.market_items.add(self.sell_oil)
         self.market_items.add(self.sell_uranium)
         self.market_items.add(self.sell_stones)
-
-
-    def _render_market(self):
-        # Font
-        self.screen.blit(self.sell, (self.font_left_margin, 770))
-        # Icons
-        self.screen.blit(self.sell_oil.image, (self.font_left_margin + 90, 760))
-        self.screen.blit(self.sell_uranium.image, (self.font_left_margin + 140, 766))
-        self.screen.blit(self.sell_stones.image, (self.font_left_margin + 200, 769))
 
 
     # TODO I think I'm going to split the render_text method into two methods,
@@ -153,18 +145,20 @@ class Arabia:
         # Resources
         money = self.font.render(f"Money:{str(self.player.money)}", True, (0,0,0))
         oil = self.font.render(
-            f"Oil:{str(self.player.resources.get('oil', 0))}", True, (0,0,0)
+            f"{str(self.player.resources.get('oil', 0))}", True, (0,0,0)
         )
         uranium = self.font.render(
-            f"Uranium:{str(self.player.resources.get('uranium', 0))}", True, (0,0,0)
+            f"{str(self.player.resources.get('uranium', 0))}", True, (0,0,0)
         )
         stones = self.font.render(
-            f"Stones:{str(self.player.resources.get('stones', 0))}", True, (0,0,0)
+            f"{str(self.player.resources.get('stones', 0))}", True, (0,0,0)
         )
+        # TODO I don't like +40 hardcoded below
+        # Also, this could be a for loop
         self.screen.blit(money, (self.font_left_margin, 10))
-        self.screen.blit(oil, (self.font_left_margin, 55))
-        self.screen.blit(uranium, (self.font_left_margin, 100))
-        self.screen.blit(stones, (self.font_left_margin, 145))
+        self.screen.blit(oil, (self.font_left_margin+40, 55))
+        self.screen.blit(uranium, (self.font_left_margin+40, 100))
+        self.screen.blit(stones, (self.font_left_margin+40, 145))
         # FPS
         fps = self.font_small.render(f"FPS:{str(int(self.clock.get_fps()))}", True, (0,0,0))
         self.screen.blit(fps, (self.font_left_margin, 870))
@@ -176,12 +170,15 @@ class Arabia:
         # Uncomment for border-debugging
         # self.screen.blit(self.border.image, self.border.rect)
 
-        for sprite in self.resources_on_map:
+        for resource in self.resources_on_map:
             self.screen.blit(
-                sprite.image, sprite.rect
+                resource.image, resource.rect
+            )
+        for resource in self.market_items:
+            self.screen.blit(
+                resource.image, resource.rect
             )
 
         self._render_text()
-        self._render_market()
 
         pygame.display.flip()
