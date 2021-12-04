@@ -22,9 +22,35 @@ class Arabia:
         self.border = GameElement(  # Technically a sprite, not a surface
             "ArabiaMask", load_surface("arabia_mask.png"), x=MENU_WIDTH, y=0
         )
-        self.oil_token = load_surface("oil_token.png")
-        self.uranium_token = load_surface("uranium_token.png")
-        self.stones_token = load_surface("stone_token.png")
+
+        self.resource_info = {
+            "money": {
+                "token": load_surface("money_symbol.png"),
+                "y_coordinate": 10
+            },
+            "oil": {
+                "token": load_surface("oil_token.png"),
+                "chance_to_appear": 100,
+                "y_coordinate": 50,
+                "inside_cost": 3,
+                "outside_cost": 5
+            },
+            "uranium": {
+                "token": load_surface("uranium_token.png"),
+                "chance_to_appear": 100,
+                "y_coordinate": 103,
+                "inside_cost": 7,
+                "outside_cost": 10
+            },
+            "stones": {
+                "token": load_surface("stone_token.png"),
+                "chance_to_appear": 100,
+                "y_coordinate": 145,
+                "inside_cost": 3,
+                "outside_cost": 5
+            }
+        }
+
         self.resources_on_map = pygame.sprite.Group()
         #Fonts
         self.font = pygame.font.SysFont("monospace", 35)
@@ -32,7 +58,7 @@ class Arabia:
         self.font_small = pygame.font.SysFont("monospace", 20)
         self.font_left_margin:int = 10
         # Market
-        self.market_items = pygame.sprite.Group()
+        self.market_symbols = pygame.sprite.Group()
         self._init_market()
         # FPS control
         self.clock = pygame.time.Clock()
@@ -62,8 +88,11 @@ class Arabia:
                 for resource in self.resources_on_map:
                     if resource.rect.collidepoint(mouse_position):
                         self._handle_resource_clicking(resource)
-                for resource in self.market_items:
-                    if resource.rect.collidepoint(mouse_position):
+                for resource in self.market_symbols:
+                    if (
+                        resource.rect.collidepoint(mouse_position)
+                        and resource.type != "money"
+                    ):
                         self._handle_selling(resource)
 
 
@@ -83,7 +112,7 @@ class Arabia:
             resource.inside_cost if inside_arabia else resource.outside_cost
         )
         if self.player.has_enough_money(resource_cost):
-            self.player.money -= resource_cost
+            self.player.resources["money"] -= resource_cost
             self.resources_on_map.remove(resource)
             self.player.add_resource(resource.type)
             print(f"Mined {resource.type} for {resource_cost}")
@@ -94,7 +123,7 @@ class Arabia:
     def _handle_selling(self, resource):
         if self.player.has_resource(resource.type):
             self.player.resources[resource.type] -= 1
-            self.player.money += self.market.prices[resource.type]
+            self.player.resources["money"] += self.market.prices[resource.type]
             print(f"Sold {resource.type} for {self.market.prices[resource.type]}")
             self.market.modify_price(resource.type)
         else:
@@ -102,48 +131,39 @@ class Arabia:
 
 
     def _process_game_logic(self):
-        if randint(1, 100) == 1:
-            self.resources_on_map.add(
-                Resource("oil", self.oil_token, 3, 5, random=True)
-            )
-        if randint(1, 100) == 1:
-            self.resources_on_map.add(
-                Resource("uranium", self.uranium_token, 8, 10, random=True)
-            )
-
-        if randint(1, 100) == 1:
-            self.resources_on_map.add(
-                Resource("stones", self.stones_token, 5, 8, random=True)
-            )
+        for _type, info in self.resource_info.items():
+            if _type == "money":
+                continue
+            if randint(0, info["chance_to_appear"]) == 0:
+                self.resources_on_map.add(
+                    Resource(
+                        _type, info["token"],
+                        info["inside_cost"], info["outside_cost"]
+                    )
+                )
 
         # Calculate resources touching the Arabia
-        # TODO This should rather be "inside of Arabia"
-        # That could be achieved by using a smaller mask
+        # TODO Use smaller mask maybe?
         self.arabia_col: list = pygame.sprite.spritecollide(
             self.border, self.resources_on_map,
             False, pygame.sprite.collide_mask
         )
 
     def _init_market(self):
-        # Font
-        self.sell = self.font_medium.render("Sell:", True, (0,0,0))
-        # Icons
-        # TODO work on alignment of icons and/or text
-        self.sell_oil = GameElement("oil", self.oil_token, x=self.font_left_margin, y=50)
-        self.sell_uranium = GameElement("uranium", self.uranium_token, x=self.font_left_margin, y=103)
-        self.sell_stones = GameElement("stones", self.stones_token, x=self.font_left_margin, y=145)
+        for _type, info in self.resource_info.items():
+            self.market_symbols.add(
+                GameElement(
+                    _type, info["token"],
+                    x=self.font_left_margin, y=info["y_coordinate"]
+                )
+            )
 
-        self.market_items.add(self.sell_oil)
-        self.market_items.add(self.sell_uranium)
-        self.market_items.add(self.sell_stones)
-
-
-    # TODO I think I'm going to split the render_text method into two methods,
-    # one for rendering all info about resources (including texts and sell icons),
-    # and another strictly for textual info, like FPS.
     def _render_text(self):
+        # T0D0 put this into for-loop
         # Resources
-        money = self.font.render(f"Money:{str(self.player.money)}", True, (0,0,0))
+        money = self.font.render(
+            f"{str(self.player.resources.get('money'))}", True, (0,0,0)
+        )
         oil = self.font.render(
             f"{str(self.player.resources.get('oil', 0))}", True, (0,0,0)
         )
@@ -155,7 +175,7 @@ class Arabia:
         )
         # TODO I don't like +40 hardcoded below
         # Also, this could be a for loop
-        self.screen.blit(money, (self.font_left_margin, 10))
+        self.screen.blit(money, (self.font_left_margin+40, 10))
         self.screen.blit(oil, (self.font_left_margin+40, 55))
         self.screen.blit(uranium, (self.font_left_margin+40, 100))
         self.screen.blit(stones, (self.font_left_margin+40, 145))
@@ -174,7 +194,7 @@ class Arabia:
             self.screen.blit(
                 resource.image, resource.rect
             )
-        for resource in self.market_items:
+        for resource in self.market_symbols:
             self.screen.blit(
                 resource.image, resource.rect
             )

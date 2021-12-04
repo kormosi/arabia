@@ -7,8 +7,8 @@ from random import randint
 
 class Player():
     def __init__( self) -> None:
-        self.money:int = 50
-        self.resources:dict[str, int] = {}
+        self.resources: dict[str, int] = {}
+        self.resources["money"] = 50
 
     def add_resource(self, resource_type: str) -> None:
         if resource_type in self.resources:
@@ -17,7 +17,7 @@ class Player():
             self.resources[resource_type] = 1
 
     def has_enough_money(self, cost: int) -> bool:
-        return cost <= self.money
+        return cost <= self.resources["money"]
 
     def has_resource(self, resource_type: str) -> bool:
         return (
