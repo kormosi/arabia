@@ -22,7 +22,6 @@ class Arabia:
         self.border = GameElement(  # Technically a sprite, not a surface
             "ArabiaMask", load_surface("arabia_mask.png"), x=MENU_WIDTH, y=0
         )
-
         self.resource_info = {
             "money": {
                 "token": load_surface("money_symbol.png"),
@@ -50,7 +49,6 @@ class Arabia:
                 "outside_cost": 5
             }
         }
-
         self.resources_on_map = pygame.sprite.Group()
         #Fonts
         self.font = pygame.font.SysFont("monospace", 35)
@@ -161,26 +159,20 @@ class Arabia:
     def _render_text(self):
         # T0D0 put this into for-loop
         # Resources
-        money = self.font.render(
-            f"{str(self.player.resources.get('money'))}", True, (0,0,0)
-        )
-        oil = self.font.render(
-            f"{str(self.player.resources.get('oil', 0))}", True, (0,0,0)
-        )
-        uranium = self.font.render(
-            f"{str(self.player.resources.get('uranium', 0))}", True, (0,0,0)
-        )
-        stones = self.font.render(
-            f"{str(self.player.resources.get('stones', 0))}", True, (0,0,0)
-        )
-        # TODO I don't like +40 hardcoded below
-        # Also, this could be a for loop
-        self.screen.blit(money, (self.font_left_margin+40, 10))
-        self.screen.blit(oil, (self.font_left_margin+40, 55))
-        self.screen.blit(uranium, (self.font_left_margin+40, 100))
-        self.screen.blit(stones, (self.font_left_margin+40, 145))
+        for key in self.resource_info.keys():
+            self.screen.blit(
+                self.font.render(
+                    f"{str(self.player.resources.get(key, 0))}", True, (0,0,0)
+                ),
+                (
+                    self.font_left_margin+40,
+                    self.resource_info[key]["y_coordinate"]
+                )
+            )
         # FPS
-        fps = self.font_small.render(f"FPS:{str(int(self.clock.get_fps()))}", True, (0,0,0))
+        fps = self.font_small.render(
+            f"FPS:{str(int(self.clock.get_fps()))}", True, (0,0,0)
+        )
         self.screen.blit(fps, (self.font_left_margin, 870))
 
 
