@@ -30,25 +30,27 @@ class Arabia:
             "oil": {
                 "token": load_surface("oil_token.png"),
                 "chance_to_appear": 100,
-                "y_coordinate": 50,
+                "y_coordinate": 60,
                 "inside_cost": 3,
                 "outside_cost": 5
             },
             "uranium": {
                 "token": load_surface("uranium_token.png"),
                 "chance_to_appear": 100,
-                "y_coordinate": 103,
+                "y_coordinate": 115,
                 "inside_cost": 7,
                 "outside_cost": 10
             },
             "stones": {
                 "token": load_surface("stone_token.png"),
                 "chance_to_appear": 100,
-                "y_coordinate": 145,
+                "y_coordinate": 162,
                 "inside_cost": 3,
                 "outside_cost": 5
             }
         }
+        self.sell_button_surface = load_surface("button_sell.png")
+        self.refine_button_surface = load_surface("button_refine.png")
         self.resources_on_map = pygame.sprite.Group()
         #Fonts
         self.font = pygame.font.SysFont("monospace", 35)
@@ -57,6 +59,7 @@ class Arabia:
         self.font_left_margin:int = 10
         # Market
         self.market_symbols = pygame.sprite.Group()
+        self.sell_buttons = pygame.sprite.Group()
         self._init_market()
         # FPS control
         self.clock = pygame.time.Clock()
@@ -86,13 +89,9 @@ class Arabia:
                 for resource in self.resources_on_map:
                     if resource.rect.collidepoint(mouse_position):
                         self._handle_resource_clicking(resource)
-                for resource in self.market_symbols:
-                    if (
-                        resource.rect.collidepoint(mouse_position)
-                        and resource.type != "money"
-                    ):
+                for resource in self.sell_buttons:
+                    if resource.rect.collidepoint(mouse_position):
                         self._handle_selling(resource)
-
 
 
     def _handle_resource_clicking(self, resource) -> None:
@@ -155,6 +154,20 @@ class Arabia:
                     x=self.font_left_margin, y=info["y_coordinate"]
                 )
             )
+            if _type == "money":
+                continue
+            if _type == "oil":
+                self.refine_button = GameElement(
+                    "refine", self.refine_button_surface,
+                    x=self.font_left_margin+210, y=info["y_coordinate"]
+                )
+            self.sell_buttons.add(
+                GameElement(
+                    _type, self.sell_button_surface,
+                    x=self.font_left_margin+115, y=info["y_coordinate"]
+                )
+            )
+
 
     def _render_text(self):
         # T0D0 put this into for-loop
@@ -165,7 +178,7 @@ class Arabia:
                     f"{str(self.player.resources.get(key, 0))}", True, (0,0,0)
                 ),
                 (
-                    self.font_left_margin+40,
+                    self.font_left_margin+50,
                     self.resource_info[key]["y_coordinate"]
                 )
             )
@@ -186,10 +199,15 @@ class Arabia:
             self.screen.blit(
                 resource.image, resource.rect
             )
-        for resource in self.market_symbols:
+        for symbol in self.market_symbols:
             self.screen.blit(
-                resource.image, resource.rect
+                symbol.image, symbol.rect
             )
+        for button in self.sell_buttons:
+            self.screen.blit(
+                button.image, button.rect
+            )
+        self.screen.blit(self.refine_button.image, self.refine_button.rect)
 
         self._render_text()
 
