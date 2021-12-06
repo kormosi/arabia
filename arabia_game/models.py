@@ -16,13 +16,10 @@ class Player():
         else:
             self.resources[resource_type] = 1
 
-    def has_enough_money(self, cost: int) -> bool:
-        return cost <= self.resources["money"]
-
-    def has_resource(self, resource_type: str) -> bool:
+    def has_resource(self, resource_type: str, amount=1) -> bool:
         return (
             resource_type in self.resources
-            and self.resources[resource_type] > 0
+            and self.resources[resource_type] >= amount
         )
 
 
@@ -77,13 +74,15 @@ class Market():
         self.prices: dict = {
             "oil": 5,
             "uranium": 10,
-            "stones": 7
+            "stones": 7,
+            "refined_oil": 10,
         }
 
         self.modifiers: dict = {
             "oil": 0.7,
             "stones": 0.8,  
             "uranium": 1.0,
+            "refined_oil": 0.5,
         }
 
     def modify_price(self, resource_type: str) -> None:

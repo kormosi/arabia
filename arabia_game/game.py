@@ -47,6 +47,10 @@ class Arabia:
                 "y_coordinate": 162,
                 "inside_cost": 3,
                 "outside_cost": 5
+            },
+            "refined_oil": {
+                "token": load_surface("refined_oil_token.png"),
+                "y_coordinate": 210
             }
         }
         self.sell_button_surface = load_surface("button_sell.png")
@@ -85,13 +89,15 @@ class Arabia:
             # Sprite clicking
             if event.type == pygame.MOUSEBUTTONUP:
                 mouse_position:tuple[int, int] = pygame.mouse.get_pos()
-                # Check if a resource has been clicked
+                # Check if something has been clicked
                 for resource in self.resources_on_map:
                     if resource.rect.collidepoint(mouse_position):
                         self._handle_resource_clicking(resource)
                 for resource in self.sell_buttons:
                     if resource.rect.collidepoint(mouse_position):
                         self._handle_selling(resource)
+                if self.refine_button.rect.collidepoint(mouse_position):
+                    self._handle_refining()
 
 
     def _handle_resource_clicking(self, resource) -> None:
@@ -108,7 +114,7 @@ class Arabia:
         resource_cost = (
             resource.inside_cost if inside_arabia else resource.outside_cost
         )
-        if self.player.has_enough_money(resource_cost):
+        if self.player.has_resource("money", amount=resource_cost):
             self.player.resources["money"] -= resource_cost
             self.resources_on_map.remove(resource)
             self.player.add_resource(resource.type)
@@ -127,9 +133,19 @@ class Arabia:
             print("You don't own that resource")
 
 
+    def _handle_refining(self):
+        if self.player.has_resource("oil", amount=3):
+            self.player.resources["oil"] -= 3
+            self.player.add_resource("refined_oil")
+            print("Refined oil")
+        else:
+            print("You don't have enough oil to refine")
+
+
     def _process_game_logic(self):
+        # Randomly place resources on map
         for _type, info in self.resource_info.items():
-            if _type == "money":
+            if _type in ["money", "refined_oil"]:
                 continue
             if randint(0, info["chance_to_appear"]) == 0:
                 self.resources_on_map.add(
@@ -148,14 +164,17 @@ class Arabia:
 
     def _init_market(self):
         for _type, info in self.resource_info.items():
+            # Add resource symbols to market
             self.market_symbols.add(
                 GameElement(
                     _type, info["token"],
                     x=self.font_left_margin, y=info["y_coordinate"]
                 )
             )
+            # Don't add sell button if the resource is money
             if _type == "money":
                 continue
+            # Add refine button if the resource is oil
             if _type == "oil":
                 self.refine_button = GameElement(
                     "refine", self.refine_button_surface,
@@ -170,7 +189,6 @@ class Arabia:
 
 
     def _render_text(self):
-        # T0D0 put this into for-loop
         # Resources
         for key in self.resource_info.keys():
             self.screen.blit(
