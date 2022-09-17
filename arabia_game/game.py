@@ -29,21 +29,21 @@ class Arabia:
             },
             "oil": {
                 "token": load_surface("oil_token.png"),
-                "chance_to_appear": 100,
+                "chance_to_appear": 500,
                 "y_coordinate": 60,
                 "inside_cost": 3,
                 "outside_cost": 5
             },
             "uranium": {
                 "token": load_surface("uranium_token.png"),
-                "chance_to_appear": 100,
+                "chance_to_appear": 900,
                 "y_coordinate": 115,
                 "inside_cost": 7,
                 "outside_cost": 10
             },
             "stones": {
                 "token": load_surface("stone_token.png"),
-                "chance_to_appear": 100,
+                "chance_to_appear": 900,
                 "y_coordinate": 162,
                 "inside_cost": 3,
                 "outside_cost": 5
@@ -65,6 +65,8 @@ class Arabia:
         self.market_symbols = pygame.sprite.Group()
         self.sell_buttons = pygame.sprite.Group()
         self._init_market()
+        # Technology
+
         # FPS control
         self.clock = pygame.time.Clock()
 
@@ -89,7 +91,7 @@ class Arabia:
             # Sprite clicking
             if event.type == pygame.MOUSEBUTTONUP:
                 mouse_position:tuple[int, int] = pygame.mouse.get_pos()
-                # Check if something has been clicked
+                # Check if something clickable has been clicked
                 for resource in self.resources_on_map:
                     if resource.rect.collidepoint(mouse_position):
                         self._handle_resource_clicking(resource)
@@ -147,8 +149,8 @@ class Arabia:
         for _type, info in self.resource_info.items():
             if _type in ["money", "refined_oil"]:
                 continue
-            if randint(0, info["chance_to_appear"]) == 0:
-                self.resources_on_map.add(
+            if len(self.resources_on_map) < 10 and randint(0, info["chance_to_appear"]) == 0:
+                self.resources_on_map.add (
                     Resource(
                         _type, info["token"],
                         info["inside_cost"], info["outside_cost"]
@@ -191,15 +193,26 @@ class Arabia:
     def _render_text(self):
         # Resources
         for key in self.resource_info.keys():
-            self.screen.blit(
-                self.font.render(
-                    f"{str(self.player.resources.get(key, 0))}", True, (0,0,0)
-                ),
-                (
-                    self.font_left_margin+50,
-                    self.resource_info[key]["y_coordinate"]
+            if key == "money":
+                self.screen.blit(
+                    self.font.render(
+                        f"{str(round(self.player.resources.get(key, 0), 1))}", True, (0,0,0)
+                    ),
+                    (
+                        self.font_left_margin+50,
+                        self.resource_info[key]["y_coordinate"]
+                    )
                 )
-            )
+            else:    
+                self.screen.blit(
+                    self.font.render(
+                        f"{str(self.player.resources.get(key, 0))}", True, (0,0,0)
+                    ),
+                    (
+                        self.font_left_margin+50,
+                        self.resource_info[key]["y_coordinate"]
+                    )
+                )
         # FPS
         fps = self.font_small.render(
             f"FPS:{str(int(self.clock.get_fps()))}", True, (0,0,0)

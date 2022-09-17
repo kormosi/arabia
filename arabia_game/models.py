@@ -79,12 +79,16 @@ class Market():
         }
 
         self.modifiers: dict = {
-            "oil": 0.7,
-            "stones": 0.8,  
-            "uranium": 1.0,
+            "oil": 0.2,
+            "stones": 0.3,  
+            "uranium": 0.5,
             "refined_oil": 0.5,
         }
 
     def modify_price(self, resource_type: str) -> None:
-        self.prices[resource_type] -= self.modifiers[resource_type]
-        print(f"Modified {resource_type} price by -{self.modifiers[resource_type]}")
+        modifier = round(self.modifiers[resource_type], 1)
+        self.prices[resource_type] -= modifier
+        print(f"Modified {resource_type} price by -{modifier}")
+        if randint(0, 5) == 0:
+            self.prices[resource_type] += self.modifiers[resource_type] * randint(1, 3)
+            print("Unpredictable price hike!")
