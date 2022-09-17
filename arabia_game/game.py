@@ -53,6 +53,13 @@ class Arabia:
                 "y_coordinate": 210
             }
         }
+        self.tech_info = {
+            "radar": {
+                "token": load_surface("radar_icon.png"),
+                "y_coordinate": 350,
+                "level": 1
+            },
+        }
         self.sell_button_surface = load_surface("button_sell.png")
         self.refine_button_surface = load_surface("button_refine.png")
         self.resources_on_map = pygame.sprite.Group()
@@ -66,7 +73,8 @@ class Arabia:
         self.sell_buttons = pygame.sprite.Group()
         self._init_market()
         # Technology
-
+        self.technology_symbols = pygame.sprite.Group()
+        self._init_tech()
         # FPS control
         self.clock = pygame.time.Clock()
 
@@ -95,9 +103,12 @@ class Arabia:
                 for resource in self.resources_on_map:
                     if resource.rect.collidepoint(mouse_position):
                         self._handle_resource_clicking(resource)
-                for resource in self.sell_buttons:
-                    if resource.rect.collidepoint(mouse_position):
-                        self._handle_selling(resource)
+                for button in self.sell_buttons:
+                    if button.rect.collidepoint(mouse_position):
+                        self._handle_selling(button)
+                for tech_symbol in self.technology_symbols:
+                    if tech_symbol.rect.collidepoint(mouse_position):
+                        self._handle_technology_upgrade()
                 if self.refine_button.rect.collidepoint(mouse_position):
                     self._handle_refining()
 
@@ -144,12 +155,21 @@ class Arabia:
             print("You don't have enough oil to refine")
 
 
+    def _handle_technology_upgrade(self):
+        if self.player.has_resource("money", amount=self.market.prices["radar"]):
+            self.player.resources["money"] -= self.market.prices["radar"]
+            self.market.prices["radar"] += 10
+            self.tech_info["radar"]["level"] += 1
+            self.player.resources_to_display += 5
+        else:
+            print("Not enough money to buy this technology")
+
     def _process_game_logic(self):
         # Randomly place resources on map
         for _type, info in self.resource_info.items():
             if _type in ["money", "refined_oil"]:
                 continue
-            if len(self.resources_on_map) < 10 and randint(0, info["chance_to_appear"]) == 0:
+            if len(self.resources_on_map) < self.player.resources_to_display and randint(0, info["chance_to_appear"]) == 0:
                 self.resources_on_map.add (
                     Resource(
                         _type, info["token"],
@@ -189,6 +209,15 @@ class Arabia:
                 )
             )
 
+    def _init_tech(self):
+        for _type, info in self.tech_info.items():
+            # Add resource symbols to technology menu
+            self.technology_symbols.add(
+                GameElement(
+                    _type, info["token"],
+                    x=self.font_left_margin, y=info["y_coordinate"]
+                )
+            )
 
     def _render_text(self):
         # Resources
@@ -213,6 +242,21 @@ class Arabia:
                         self.resource_info[key]["y_coordinate"]
                     )
                 )
+
+        # Tech
+        for key in self.tech_info.keys():
+            self.screen.blit(
+                self.font_medium.render(
+                    f"LVL: {self.tech_info.get(key).get('level')}",
+                    True,
+                    (0,0,0)
+                ),
+                (
+                    self.font_left_margin+50,
+                    self.tech_info[key]["y_coordinate"]
+                )
+            )
+
         # FPS
         fps = self.font_small.render(
             f"FPS:{str(int(self.clock.get_fps()))}", True, (0,0,0)
@@ -238,6 +282,11 @@ class Arabia:
             self.screen.blit(
                 button.image, button.rect
             )
+        for tech in self.technology_symbols:
+            self.screen.blit(
+                tech.image, tech.rect
+            )
+
         self.screen.blit(self.refine_button.image, self.refine_button.rect)
 
         self._render_text()

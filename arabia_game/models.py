@@ -7,8 +7,10 @@ from random import randint
 
 class Player():
     def __init__( self) -> None:
+        # Resources
         self.resources: dict[str, int] = {}
         self.resources["money"] = 50
+        self.resources_to_display = 10
 
     def add_resource(self, resource_type: str) -> None:
         if resource_type in self.resources:
@@ -72,13 +74,17 @@ class Resource(GameElement):
 class Market():
     def __init__(self) -> None:
         self.prices: dict = {
+            # Resources
             "oil": 5,
             "uranium": 10,
             "stones": 7,
             "refined_oil": 10,
+            # Tech
+            "radar": 10
         }
 
         self.modifiers: dict = {
+            # Resources
             "oil": 0.2,
             "stones": 0.3,  
             "uranium": 0.5,
